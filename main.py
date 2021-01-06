@@ -30,14 +30,27 @@ def main():
     callist = list()
     free_busy_cal = Calendar()
     timezones = list()
+    begin_dt = datetime.now()
+    end_dt = datetime.now() + timedelta(args.ahead)
+
+    def datetime_trunc(date):
+        begin_dt = datetime.now(date.tzinfo)
+        end_dt = datetime.now(date.tzinfo) + timedelta(args.ahead)
+        if date < begin_dt:
+            return begin_dt
+        elif date > end_dt:
+            return end_dt
+        else:
+            return date
+
     def convert_to_free_busy(vcal):
         for i in vcal.subcomponents:
             if isinstance(i, Event) and i['uid'] not in eventlist:
                 e = Event()
                 e['uid'] = uuid.uuid4()
                 e['dtstamp'] = i['dtstamp']
-                e['dtstart'] = i['dtstart']
-                e['dtend'] = i['dtend']
+                e.add('dtstart', datetime_trunc(i.decoded('dtstart')))
+                e.add('dtend', datetime_trunc(i.decoded('dtend')))
                 #e['rstatus'] = event['rstatus']
                 e['freebusy'] = "BUSY" # should be read from event, but KDE doesn't support
                 e['summary'] = "BUSY"
@@ -54,7 +67,7 @@ def main():
     free_busy_cal.add('prodid', '-//FreeBusy//williamjbowman.com')
     free_busy_cal.add('version', '2.0')
     for calendar in calendars:
-        for event in calendar.date_search((datetime.today()), (datetime.today() + timedelta(args.ahead))):
+        for event in calendar.date_search(begin_dt, end_dt):
             c = Calendar.from_ical(event.data)
             convert_to_free_busy(c)
     print(free_busy_cal.to_ical().decode())
