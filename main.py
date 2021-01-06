@@ -35,8 +35,8 @@ def main():
         tz = getattr(d, 'tzinfo', None)
         begin_dt = datetime.now(tz)
         end_dt = datetime.now(tz) + timedelta(args.ahead)
-        if isinstance(d, date):
-            d = datetime.combine(d.date(), datetime.now().time(), tz)
+        if not isinstance(d, datetime):
+            d = datetime.combine(d, datetime.now().time(), tz)
         if d < begin_dt:
             return datetime.combine(begin_dt.date(), d.time(), tz)
         elif d > end_dt:
