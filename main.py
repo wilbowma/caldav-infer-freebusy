@@ -14,12 +14,14 @@ import urllib
 
 def main():
     parser = argparse.ArgumentParser("A stupid Free/Busy generator")
-    parser.add_argument('--user', dest='user', nargs=1, help='CalDav username')
-    parser.add_argument('--pass', dest='password', nargs=1, help='CalDav password')
-    parser.add_argument('--url', dest='url', nargs=1, help='CalDav url')
+    parser.add_argument('--user', dest='user', help='CalDav username')
+    parser.add_argument('--pass', dest='password', help='CalDav password')
+    parser.add_argument('--url', dest='url', help='CalDav url')
+    parser.add_argument('--ahead', dest='ahead', default=7, type=int,
+                        help='How many days of events to look ahead, starting from today. Defaults to 1 week.')
     args = parser.parse_args()
 
-    client = caldav.DAVClient(args.url[0], username=args.user[0], password=args.password[0])
+    client = caldav.DAVClient(args.url, username=args.user, password=args.password)
     principal = client.principal()
     calendars = principal.calendars()
     #Get a list of events (i.e raw data) and make it into calendars (icalender objects).
@@ -51,7 +53,7 @@ def main():
     free_busy_cal.add('prodid', '-//FreeBusy//williamjbowman.com')
     free_busy_cal.add('version', '2.0')
     for calendar in calendars:
-        for event in calendar.date_search((datetime.today() - timedelta(7)), (datetime.today() + timedelta(12))):
+        for event in calendar.date_search((datetime.today()), (datetime.today() + timedelta(args.ahead))):
             c = Calendar.from_ical(event.data)
             convert_to_free_busy(c)
     print(free_busy_cal.to_ical().decode())
