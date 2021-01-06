@@ -8,7 +8,7 @@ import time
 import os.path
 import pickle
 from icalendar import Calendar, Event, FreeBusy, Timezone, TimezoneDaylight, TimezoneStandard
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, date
 import tzlocal
 import argparse
 import urllib
@@ -31,15 +31,18 @@ def main():
     free_busy_cal = Calendar()
     timezones = list()
 
-    def datetime_trunc(date):
-        begin_dt = datetime.now(date.tzinfo)
-        end_dt = datetime.now(date.tzinfo) + timedelta(args.ahead)
-        if date < begin_dt:
-            return datetime.combine(begin_dt.date(), date.time(), date.tzinfo)
-        elif date > end_dt:
-            return datetime.combine(end_dt.date(), date.time(), date.tzinfo)
+    def datetime_trunc(d):
+        tz = getattr(d, 'tzinfo', None)
+        begin_dt = datetime.now(tz)
+        end_dt = datetime.now(tz) + timedelta(args.ahead)
+        if isinstance(d, date):
+            d = datetime.combine(d.date(), datetime.now().time(), tz)
+        if d < begin_dt:
+            return datetime.combine(begin_dt.date(), d.time(), tz)
+        elif d > end_dt:
+            return datetime.combine(end_dt.date(), d.time(), tz)
         else:
-            return date
+            return d
 
     def convert_to_free_busy(vcal):
         for i in vcal.subcomponents:
