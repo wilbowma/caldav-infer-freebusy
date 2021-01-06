@@ -2,6 +2,7 @@
 #Requirements: pytz, caldav, tzlocal, icalendar (all available with pip)
 
 import caldav
+import uuid
 import pytz
 import time
 import os.path
@@ -33,7 +34,7 @@ def main():
         for i in vcal.subcomponents:
             if isinstance(i, Event) and i['uid'] not in eventlist:
                 e = Event()
-                e['uid'] = i['uid']
+                e['uid'] = uuid.uuid4()
                 e['dtstamp'] = i['dtstamp']
                 e['dtstart'] = i['dtstart']
                 e['dtend'] = i['dtend']
