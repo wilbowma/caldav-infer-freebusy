@@ -14,8 +14,8 @@ import urllib
 
 def main():
     parser = argparse.ArgumentParser("A stupid Free/Busy generator")
-    parser.add_argument('--user', dest='user', help='CalDav username')
-    parser.add_argument('--pass', dest='password', help='CalDav password')
+    parser.add_argument('--user', dest='user', default=None, help='CalDav username')
+    parser.add_argument('--pass', dest='password', default=None, help='CalDav password')
     parser.add_argument('--url', dest='url', help='CalDav url')
     parser.add_argument('--ahead', dest='ahead', default=7, type=int,
                         help='How many days of events to look ahead, starting from today. Defaults to 1 week.')
