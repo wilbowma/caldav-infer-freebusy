@@ -3,4 +3,5 @@ A Python script to generate a free/busy iCalendar from a server that doesn't sup
 
 ## usage
 > python main.py --url https://mydav.server.example --user username --pass $(pass mydav.server.example) --ahead 60
+
 Will return a .ics to standard out.
