@@ -30,16 +30,14 @@ def main():
     callist = list()
     free_busy_cal = Calendar()
     timezones = list()
-    begin_dt = datetime.now()
-    end_dt = datetime.now() + timedelta(args.ahead)
 
     def datetime_trunc(date):
         begin_dt = datetime.now(date.tzinfo)
         end_dt = datetime.now(date.tzinfo) + timedelta(args.ahead)
         if date < begin_dt:
-            return begin_dt
+            return datetime.combine(begin_dt.date(), date.time(), date.tzinfo)
         elif date > end_dt:
-            return end_dt
+            return datetime.combine(end_dt.date(), date.time(), date.tzinfo)
         else:
             return date
 
@@ -67,7 +65,7 @@ def main():
     free_busy_cal.add('prodid', '-//FreeBusy//williamjbowman.com')
     free_busy_cal.add('version', '2.0')
     for calendar in calendars:
-        for event in calendar.date_search(begin_dt, end_dt):
+        for event in calendar.date_search(datetime.now(), datetime.now() + timedelta(args.ahead)):
             c = Calendar.from_ical(event.data)
             convert_to_free_busy(c)
     print(free_busy_cal.to_ical().decode())
