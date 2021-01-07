@@ -46,7 +46,7 @@ def main():
 
     def convert_to_free_busy(vcal):
         for i in vcal.subcomponents:
-            if isinstance(i, Event) and i['uid'] not in eventlist:
+            if isinstance(i, Event):# and i['uid'] not in eventlist:
                 e = Event()
                 e['uid'] = uuid.uuid4()
                 e['dtstamp'] = i['dtstamp']
