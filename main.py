@@ -46,15 +46,23 @@ def main():
 
     def convert_to_free_busy(vcal):
         for i in vcal.subcomponents:
-            if isinstance(i, Event):# and i['uid'] not in eventlist:
+            if isinstance(i, Event) and \
+               (not 'transp' in i or
+                i.decoded('transp').decode() == 'OPAQUE') and \
+               (not 'class' in i or
+                i.decoded('class').decode() != 'CONFIDENTIAL'):
                 e = Event()
                 e['uid'] = uuid.uuid4()
                 e['dtstamp'] = i['dtstamp']
                 e.add('dtstart', datetime_trunc(i.decoded('dtstart')))
                 e.add('dtend', datetime_trunc(i.decoded('dtend')))
                 #e['rstatus'] = event['rstatus']
-                e['freebusy'] = "BUSY" # should be read from event, but KDE doesn't support
-                e['summary'] = "BUSY"
+                e['freebusy'] = 'BUSY' # should be read from event, but KDE doesn't support
+                e['summary'] = i['summary']
+                if 'class' in i:
+                    e['class'] = i['class']
+                    if i.decoded('class').decode() == 'PRIVATE':
+                        e['summary'] = "Busy"
                 if 'rrule' in i:
                     e['rrule'] = i['rrule']
                 free_busy_cal.add_component(e)
