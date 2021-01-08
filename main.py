@@ -13,6 +13,8 @@ import tzlocal
 import argparse
 import urllib
 
+COMPLIANT = False
+
 def main():
     parser = argparse.ArgumentParser("A stupid Free/Busy generator")
     parser.add_argument('--user', dest='user', default=None, help='CalDav username')
@@ -20,7 +22,10 @@ def main():
     parser.add_argument('--url', dest='url', help='CalDav url')
     parser.add_argument('--ahead', dest='ahead', default=7, type=int,
                         help='How many days of events to look ahead, starting from today. Defaults to 1 week.')
+    parser.add_argument('--compliant', dest='compliant', action='store_true',
+                        help='Set privacy of events by being compliant with CalDAV; this meaning events are PUBLIC BY DEFAULT. Defaults to False to preserve privacy.')
     args = parser.parse_args()
+    COMPLIANT = args.compliant
 
     client = caldav.DAVClient(args.url, username=args.user, password=args.password)
     principal = client.principal()
@@ -58,11 +63,16 @@ def main():
                 e.add('dtend', datetime_trunc(i.decoded('dtend')))
                 #e['rstatus'] = event['rstatus']
                 e['freebusy'] = 'BUSY' # should be read from event, but KDE doesn't support
-                e['summary'] = i['summary']
+                if COMPLIANT:
+                    e['summary'] = i['summary']
+                else:
+                    e['summary'] = "Busy"
                 if 'class' in i:
                     e['class'] = i['class']
                     if i.decoded('class').decode() == 'PRIVATE':
                         e['summary'] = "Busy"
+                    if i.decoded('class').decode() == 'PUBLIC':
+                        e['summary'] = i['summary']
                 if 'rrule' in i:
                     e['rrule'] = i['rrule']
                 free_busy_cal.add_component(e)
