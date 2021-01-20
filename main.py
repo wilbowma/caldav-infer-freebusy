@@ -64,8 +64,10 @@ def main():
                 e['uid'] = i['uid']
                 seen.append(i['uid'])
                 e['dtstamp'] = i['dtstamp']
-                e.add('dtstart', datetime_trunc(i.decoded('dtstart')))
-                e.add('dtend', datetime_trunc(i.decoded('dtend')))
+                #e.add('dtstart', datetime_trunc(i.decoded('dtstart')))
+                #e.add('dtend', datetime_trunc(i.decoded('dtend')))
+                e['dtstart'] = i['dtstart']
+                e['dtend'] = i['dtend']
                 #e['rstatus'] = event['rstatus']
                 e['freebusy'] = 'BUSY' # should be read from event, but KDE doesn't support
                 if COMPLIANT:
