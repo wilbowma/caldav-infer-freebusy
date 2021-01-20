@@ -49,15 +49,20 @@ def main():
         else:
             return d
 
+    seen = list()
     def convert_to_free_busy(vcal):
         for i in vcal.subcomponents:
             if isinstance(i, Event) and \
+               (not i['uid'] in seen) and \
                (not 'transp' in i or
                 i.decoded('transp').decode() == 'OPAQUE') and \
                (not 'class' in i or
                 i.decoded('class').decode() != 'CONFIDENTIAL'):
                 e = Event()
-                e['uid'] = uuid.uuid4()
+                #e['x-old-uid'] = i['uid']
+                #e['uid'] = uuid.uuid4()
+                e['uid'] = i['uid']
+                seen.append(i['uid'])
                 e['dtstamp'] = i['dtstamp']
                 e.add('dtstart', datetime_trunc(i.decoded('dtstart')))
                 e.add('dtend', datetime_trunc(i.decoded('dtend')))
