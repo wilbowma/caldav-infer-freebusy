@@ -27,7 +27,7 @@ def main():
     args = parser.parse_args()
     COMPLIANT = args.compliant
 
-    client = caldav.DAVClient(args.url, username=args.user, password=args.password)
+    client = caldav.DAVClient(args.url, username=args.user, password=args.password, auth=(args.user, args.password))
     principal = client.principal()
     calendars = principal.calendars()
     #Get a list of events (i.e raw data) and make it into calendars (icalender objects).
