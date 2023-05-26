@@ -24,8 +24,11 @@ def main():
                         help='How many days of events to look ahead, starting from today. Defaults to 1 week.')
     parser.add_argument('--compliant', dest='compliant', action='store_true',
                         help='Set privacy of events by being compliant with CalDAV; this meaning events are PUBLIC BY DEFAULT. Defaults to False to preserve privacy.')
+    parser.add_argument('--except', dest='exceptions', nargs="*", type=str,
+                        help="A list of calendar names to not include in the free/bsuy calendar.")
     args = parser.parse_args()
     COMPLIANT = args.compliant
+    exceptions = args.exceptions
 
     client = caldav.DAVClient(args.url, username=args.user, password=args.password, auth=(args.user, args.password))
     principal = client.principal()
@@ -93,9 +96,10 @@ def main():
     free_busy_cal.add('prodid', '-//FreeBusy//williamjbowman.com')
     free_busy_cal.add('version', '2.0')
     for calendar in calendars:
-        for event in calendar.date_search(datetime.now(), datetime.now() + timedelta(args.ahead)):
-            c = Calendar.from_ical(event.data)
-            convert_to_free_busy(c)
+        if not calendar.name in exceptions:
+            for event in calendar.date_search(datetime.now(), datetime.now() + timedelta(args.ahead)):
+                c = Calendar.from_ical(event.data)
+                convert_to_free_busy(c)
     print(free_busy_cal.to_ical().decode())
     return
 
