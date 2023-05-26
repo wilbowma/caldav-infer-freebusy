@@ -75,14 +75,14 @@ def main():
                 e['freebusy'] = 'BUSY' # should be read from event, but KDE doesn't support
                 if COMPLIANT:
                     e['summary'] = i['summary']
-                else:
-                    e['summary'] = "Busy"
                 if 'class' in i:
                     e['class'] = i['class']
                     if i.decoded('class').decode() == 'PRIVATE':
                         e['summary'] = "Busy"
                     if i.decoded('class').decode() == 'PUBLIC':
                         e['summary'] = i['summary']
+                if not COMPLIANT:
+                    e['summary'] = "Busy"
                 if 'rrule' in i:
                     e['rrule'] = i['rrule']
                 free_busy_cal.add_component(e)
